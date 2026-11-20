@@ -124,7 +124,7 @@ build_changes() {
   perl "$root/tools/changelog_first.pl" <"$name.tex" >"build/$name.current.tex" || return 1
   if ! "$latexdiff_cmd" --encoding=utf8 --type=UNDERLINE --math-markup=whole \
       --append-textcmd="reqsource,reqverify,reqnote" \
-      --append-safecmd="reqref,clarify,printterms" \
+      --append-safecmd="reqref,clarify" \
       "build/$name.accepted.tex" "build/$name.current.tex" >"build/$name.diff.tex" 2>"build/$name.latexdiff.log"; then
     echo "   ОШИБКА latexdiff, лог: docs/build/$name.latexdiff.log" >&2
     return 1
