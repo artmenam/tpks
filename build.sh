@@ -5,12 +5,16 @@
 #   ./build.sh --changes                        экземпляры с выделенными изменениями для всех
 #                                               документов из docs/accepted.txt
 #   ./build.sh --changes docs/02_scm_plan.tex   то же для одного документа
+#   ./build.sh --check                          проверка идентификации требований (без сборки PDF),
+#                                               пункты И1–И13 чек-листа docs/00_checklist.tex
 #   ENGINE=tectonic ./build.sh …                выбрать движок: latexmk, xelatex или tectonic
 # Готовый PDF кладётся в pdf/ (с изменениями — в pdf/changes/), временные файлы и логи — в docs/build/.
 set -u
 root="$(cd "$(dirname "$0")" && pwd)"
 cd "$root/docs" || exit 1
 mkdir -p "$root/pdf" build
+
+if [ "${1:-}" = "--check" ]; then exec perl "$root/tools/check_ids.pl"; fi
 
 changes=0
 if [ "${1:-}" = "--changes" ]; then changes=1; shift; fi
@@ -134,6 +138,9 @@ build_changes() {
   mkdir -p "$root/pdf/changes"
   build_one "build/$name-changes.tex" "$name-changes" "$root/pdf/changes/$name.pdf"
 }
+
+# Версии требований всех документов: по ним ссылка печатается как «SYS_01_01; #1».
+perl "$root/tools/req_versions.pl" 0[1-9]_*.tex >build/req_versions.tex 2>/dev/null || : >build/req_versions.tex
 
 if [ $# -eq 0 ]; then
   if [ $changes -eq 1 ]; then

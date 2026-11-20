@@ -243,12 +243,27 @@
       { \seq_gput_right:NV \g__tpks_ids_seq \l__tpks_id_str }
     \iow_now:Nx \@auxout { \token_to_str:N \tpks@reqdefined { \l__tpks_id_str } }
     \par \addvspace { 6pt plus 2pt } \noindent
+    % Идентификатор со служебными символами: «SRD_01_01; #1» — ID, «;~#», версия.
     \use:x { \exp_not:N \hypertarget { req: \l__tpks_id_str } }
-      { \textbf { \l__tpks_id_str
-          \iftpkssubmission\else ;~\#\tl_trim_spaces:n {#2}\fi } }
+      { \textbf { \l__tpks_id_str ;~\#\tl_trim_spaces:n {#2} } }
     \par \nopagebreak \noindent \ignorespaces
   }
   { \par \addvspace { 6pt plus 2pt } }
+
+% Версии требований всех документов: build.sh пишет их в build/req_versions.tex
+% строками \tpksreqversion{SYS_01_01}{1}. По ним ссылка печатается как «SYS_01_01; #1».
+\prop_new:N \g__tpks_reqver_prop
+\str_new:N \l__tpks_ref_str
+\tl_new:N \l__tpks_ver_tl
+\prg_generate_conditional_variant:Nnn \prop_get:NnN { NV } { TF }
+\NewDocumentCommand \tpksreqversion { m m } { \prop_gput:Nnn \g__tpks_reqver_prop {#1} {#2} }
+\NewDocumentCommand \tpksversioned { m }
+  {
+    \str_set:Nx \l__tpks_ref_str { \tl_trim_spaces:n {#1} }
+    \prop_get:NVNTF \g__tpks_reqver_prop \l__tpks_ref_str \l__tpks_ver_tl
+      { \l__tpks_ref_str ;~\#\l__tpks_ver_tl }
+      { #1 }
+  }
 
 \NewDocumentCommand \reqsource { m }
   {
@@ -262,7 +277,10 @@
           \regex_replace_once:nnN { \A parent=\[ } {} \l_tmpa_tl
           \regex_replace_once:nnN { \] \Z } {} \l_tmpa_tl
           \clist_set:NV \l_tmpa_clist \l_tmpa_tl
-          «Системные~требования»,~\clist_use:Nn \l_tmpa_clist {,~}
+          \seq_clear:N \l_tmpa_seq
+          \clist_map_inline:Nn \l_tmpa_clist
+            { \seq_put_right:Nx \l_tmpa_seq { \exp_not:N \tpksversioned { \exp_not:n {##1} } } }
+          «Системные~требования»,~\seq_use:Nn \l_tmpa_seq {,~}
         }
       \group_end:
     \else #1 \fi
@@ -353,4 +371,6 @@
 
 % Глоссарий читается в начале документа, после включения «_ как есть».
 \AtBeginDocument{\InputIfFileExists{glossary.tex}{}{\ClassWarning{tpks}{Нет файла docs/glossary.tex}}}
+% Версии требований для ссылок; без файла (например, в Overleaf) ссылка печатается без версии.
+\AtBeginDocument{\InputIfFileExists{build/req_versions.tex}{}{}}
 \endinput
