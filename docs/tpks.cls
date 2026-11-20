@@ -153,7 +153,7 @@
   {
     \fancyhf{}
     \fancyhead[L]{\small \g__tpks_title_tl}
-    \iftpkssubmission\else \fancyhead[R]{\small Версия~\g__tpks_version_tl} \fi
+    \fancyhead[R]{\small Версия~\g__tpks_version_tl}
     \fancyfoot[C]{\thepage}
     \renewcommand{\headrulewidth}{0.4pt}
     \renewcommand{\footrulewidth}{0pt}
@@ -186,9 +186,9 @@
       \vfill
       {\Large\bfseries \g__tpks_title_tl \par}
       \bigskip {\large \g__tpks_project_tl \par}
-      \iftpkssubmission\else
-        \medskip Версия~\g__tpks_version_tl {}~от~\g__tpks_date_tl \par
-      \fi
+      % Версия на титульном листе и в колонтитуле — во всех документах, в том числе в режиме сдачи
+      % (проверочный перечень полноты, вопрос 2).
+      \medskip Версия~\g__tpks_version_tl {}~от~\g__tpks_date_tl \par
       \tl_if_blank:VF \g__tpks_authors_tl
         { \medskip Авторы~документа:~\g__tpks_authors_tl \par }
       \tl_if_blank:VF \g__tpks_changesbase_tl { \__tpks_changes_note: }
